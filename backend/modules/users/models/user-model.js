@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { encodePassword } = require("../../../shared/password-utils");
+const { encodePassword } = require("../../../shared/utils/password-utils");
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await encodePassword(this.password);
-  next();
+ 
 });
 
 const UserModel = mongoose.model("User", userSchema);

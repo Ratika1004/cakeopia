@@ -7,11 +7,11 @@ const verifyLoginRules = require("../middlewares/verify-login-rules");
 const UserModel = require("../models/user-model");
 const OTPModel = require("../models/otp-model");
 
-const { matchPassword } = require("../../../shared/password-utils");
-const { encodeToken } = require("../../../shared/jwt-utils");
+const { matchPassword } = require("../../../shared/utils/password-utils");
+const { encodeToken } = require("../../../shared/utils/jwt-utils");
 const authorize = require("../../../shared/middlewares/authorize");
-const { randomNumberOfDigits } = require("../../../shared/compute-utils");
-const { sendEmail } = require("../../../shared/email-utils");
+const { randomNumberOfDigits } = require("../../../shared/utils/compute-utils");
+const { sendEmail } = require("../../../shared/utils/email-utils");
 
 const usersRoute = Router();
 
@@ -31,8 +31,12 @@ usersRoute.post("/register", createUserRules, async (req, res) => {
     delete safeUser.password;
 
     res.status(201).json(safeUser);
-  } catch (err) {
-    res.status(500).json({ message: "Register failed" });
+  } catch (error) {
+  console.error("REGISTER ERROR 🔥:", error);
+  res.status(500).json({
+    message: "Register failed",
+    error: error.message,
+    stack: error.stack, });
   }
 });
 

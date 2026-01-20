@@ -3,7 +3,8 @@ const express =  require("express");
 
 
 const connectDB= require("./shared/utils/connect-db");
-const userRoutes =  require("./modules/user/user.routes");
+const userRoutes =  require("./modules/users/routes/user-routes");
+const productRoutes = require("./modules/products/routes/product-routes");
 
 
 const app = express();
@@ -11,9 +12,10 @@ const app = express();
 app.use(express.json());
 app.use(connectDB);
 
-app.use("/api/users", userRoutes);
+app.use("/users", userRoutes);
+app.use("/products" , productRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT , () => {
-    console.log(`cakeopia backend running on port ${PORT}`);
+    console.log(`cakeopia backend running on http://localhost:${PORT}`);
 });
