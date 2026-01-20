@@ -7,6 +7,7 @@ const authorize = require("../../../shared/middlewares/authorize");
 
 const productRoutes = Router();
 
+//get all products
 productRoutes.get("/",async(req,res)=>{
     try{
         const products = await ProductModel.find({ isAvailable : true});

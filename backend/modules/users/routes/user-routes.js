@@ -32,7 +32,7 @@ usersRoute.post("/register", createUserRules, async (req, res) => {
 
     res.status(201).json(safeUser);
   } catch (error) {
-  console.error("REGISTER ERROR 🔥:", error);
+  console.error("REGISTER ERROR :", error);
   res.status(500).json({
     message: "Register failed",
     error: error.message,
@@ -61,7 +61,7 @@ usersRoute.post("/login", loginUserRules, async (req, res) => {
 
     await sendEmail(
       email,
-      "Cakeopia Login OTP 🍰",
+      "Cakeopia Login OTP ",
       `Your OTP is ${otp}. It expires in 5 minutes.`
     );
 
