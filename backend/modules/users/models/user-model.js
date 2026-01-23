@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
       type: [String],
       enum: ["admin", "customer"],
       default: ["customer"],
-      required: true,
+     
     },
     createdAt: { type: Date, default: Date.now },
   },
