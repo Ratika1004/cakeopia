@@ -1,138 +1,193 @@
-import { useEffect , useState } from "react";
-import {useNavigate} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
 const Cart = () => {
-  const [cart , setCart] = useState([]);
-  const [loading , setLoading] = useState(true);
-  const [error , setError] = useState("");
+  const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  const navigate = useNavigate();
+
+  // Fetch cart items
   const fetchCart = async () => {
-    try{
-       const res = await api.get("/cart");
-       setCart(res.data.items || []);
-    // eslint-disable-next-line no-unused-vars
-    } catch(err) {
-      setError ("failed to load cart");
+    try {
+      const res = await api.get("/cart");
+      setCart(res.data.items || []);
+    } catch (err) {
+      setError("Failed to load cart");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchCart();
-  },[]);
+  }, []);
 
-
-  //update quantity
-  const updateQuantity = async ( productId , newQty) =>{
-    if(newQty < 1) return ;
-
+  // Update quantity
+  const updateQuantity = async (productId, newQty) => {
+    if (newQty < 1) return;
     try {
-      await api.put("/cart/update" , {
-        productId,
-        quantity : newQty,
-      });
+      await api.put("/cart/update", { productId, quantity: newQty });
       fetchCart();
-    // eslint-disable-next-line no-unused-vars
-    } catch(err){
-      alert ("Failed to update quantity");
+    } catch {
+      alert("Failed to update quantity");
     }
   };
 
-
-  //remove item
+  // Remove item
   const removeItem = async (productId) => {
-    try{
+    try {
       await api.delete(`/cart/remove/${productId}`);
       fetchCart();
-    // eslint-disable-next-line no-unused-vars
-    } catch(err){
+    } catch {
       alert("Failed to remove item");
     }
   };
 
-  const navigate = useNavigate();
+  // Place order
   const placeOrder = async () => {
     try {
       await api.post("/orders");
-      alert("order placed successfully");
+      alert("Order placed successfully");
       navigate("/orders");
-    // eslint-disable-next-line no-unused-vars
-    } catch(err) {
-      alert ("failed to place order");
+    } catch {
+      alert("Failed to place order");
     }
   };
 
-
   const totalAmount = cart.reduce(
-    (sum,item)=> sum+item.product.price * item.quantity,0
+    (sum, item) => sum + (item.product?.price || 0) * item.quantity,
+    0
   );
 
-  if (loading) return <p>Loading cart...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  // ------------------- STYLES -------------------
+  const pageStyle = {
+    padding: "40px 20px",
+    minHeight: "100vh",
+    backgroundColor: "#fef6f0",
+    fontFamily: "'Poppins', sans-serif",
+  };
+
+  const headingStyle = {
+    textAlign: "center",
+    color: "#ff6b6b",
+    fontSize: "32px",
+    marginBottom: "30px",
+    fontWeight: "600",
+  };
+
+  const gridStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+    gap: "20px",
+  };
+
+  const cardStyle = {
+    backgroundColor: "#fff",
+    borderRadius: "15px",
+    padding: "20px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    minHeight: "200px",
+  };
+
+  const nameStyle = { fontSize: "20px", fontWeight: "600", color: "#333" };
+  const priceStyle = { fontSize: "16px", fontWeight: "500", color: "#ff6b6b" };
+  const qtyContainer = {
+    display: "flex",
+    alignItems: "center",
+    margin: "15px 0",
+  };
+  const qtyButton = {
+    padding: "5px 12px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "none",
+    backgroundColor: "#ff6b6b",
+    color: "#fff",
+    cursor: "pointer",
+  };
+  const removeBtn = {
+    marginTop: "10px",
+    padding: "8px 12px",
+    fontSize: "14px",
+    borderRadius: "8px",
+    border: "none",
+    backgroundColor: "#f56565",
+    color: "#fff",
+    cursor: "pointer",
+  };
+  const placeOrderBtn = {
+    marginTop: "20px",
+    padding: "12px 20px",
+    fontSize: "18px",
+    borderRadius: "10px",
+    border: "none",
+    backgroundColor: "#ff6b6b",
+    color: "#fff",
+    cursor: "pointer",
+  };
+  // ---------------------------------------------
+
+  if (loading) return <p style={{ textAlign: "center" }}>Loading cart...</p>;
+  if (error) return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
 
   return (
-    <div>
-      <h2>Your Cart </h2>
+    <div style={pageStyle}>
+      <h2 style={headingStyle}>Your Cart</h2>
 
       {cart.length === 0 ? (
-        <p>Your cart is empty</p>
+        <p style={{ textAlign: "center" }}>Your cart is empty</p>
       ) : (
         <>
-          {cart.map((item) => (
-            <div
-              key={item.product._id}
-              style={{
-                border: "1px solid #ccc",
-                padding: "10px",
-                marginBottom: "10px",
-              }}
-            >
-              <h4>{item.product.name}</h4>
-              <p>₹{item.product.price}</p>
+          <div style={gridStyle}>
+            {cart.map((item) => (
+              <div key={item.product?._id || Math.random()} style={cardStyle}>
+                <div>
+                  <div style={nameStyle}>{item.product?.name || "Unnamed Cake"}</div>
+                  <div style={priceStyle}>₹{item.product?.price ?? "N/A"}</div>
 
-              <div>
-                <button
-                  onClick={() =>
-                    updateQuantity(
-                      item.product._id,
-                      item.quantity - 1
-                    )
-                  }
-                >
-                  −
-                </button>
+                  <div style={qtyContainer}>
+                    <button
+                      style={qtyButton}
+                      onClick={() =>
+                        updateQuantity(item.product._id, item.quantity - 1)
+                      }
+                    >
+                      −
+                    </button>
+                    <span style={{ margin: "0 10px", fontSize: "16px" }}>{item.quantity}</span>
+                    <button
+                      style={qtyButton}
+                      onClick={() =>
+                        updateQuantity(item.product._id, item.quantity + 1)
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
 
-                <span style={{ margin: "0 10px" }}>
-                  {item.quantity}
-                </span>
-
-                <button
-                  onClick={() =>
-                    updateQuantity(
-                      item.product._id,
-                      item.quantity + 1
-                    )
-                  }
-                >
-                  +
-                </button>
+                  <button
+                    style={removeBtn}
+                    onClick={() => removeItem(item.product._id)}
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
+            ))}
+          </div>
 
-              <button
-                style={{ marginTop: "10px", color: "red" }}
-                onClick={() => removeItem(item.product._id)}
-              >
-                Remove 
-              </button>
-            </div>
-          ))}
-
-          <h3>Total: ₹{totalAmount}</h3>
-          <button onClick={placeOrder}>
-            Place Order 
-          </button>
+          <h3 style={{ textAlign: "right", marginTop: "20px" }}>Total: ₹{totalAmount}</h3>
+          <div style={{ textAlign: "right" }}>
+            <button style={placeOrderBtn} onClick={placeOrder}>
+              Place Order
+            </button>
+          </div>
         </>
       )}
     </div>

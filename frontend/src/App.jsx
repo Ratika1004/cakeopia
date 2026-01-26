@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoutes";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 
+
 function App() {
   return (
     <Routes>
