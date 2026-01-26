@@ -35,6 +35,18 @@ const Products = () => {
    if(loading) return <p> Loading Cakes...</p>
    if(error) return <p style={{color : "red"}} > {error} </p>;
 
+   const addToCart = async (productId) => {
+    try {
+      await api.post("/cart/add" , {
+        productId,
+        quantity : 1,
+      });
+      alert("Added to cart")
+    } catch(err){
+      alert(err.response?.data?.message || "failed to add to cart");
+    }
+   }
+
    return (
     <div>
       <h2>Our cakes</h2>
@@ -42,11 +54,16 @@ const Products = () => {
 
       <ul>
         {products.map((product) => (
-          <li key={product._id} style={{marginBottom:"10px"}}>
+          <li key={product._id} style={{marginBottom:"20px"}}>
             <strong>{product.name}</strong> <br />
             Price : ₹{product.price} <br />
-            {product.description}
+            {product.description} <br />
+            <button onClick={() => addToCart(product._id)}>
+              Add to Cart
+            </button>
+        
           </li>
+      
         ))}
       </ul>
     </div>
