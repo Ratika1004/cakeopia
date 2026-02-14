@@ -34,101 +34,153 @@ const Products = () => {
   const addToCart = async (productId) => {
     try {
       await api.post("/cart/add", { productId, quantity: 1 });
-      alert("Added to cart");
+      alert("Added to cart 🛒");
     } catch (err) {
       alert(err.response?.data?.message || "Failed to add to cart");
     }
   };
 
   // ------------------- STYLES -------------------
+
   const containerStyle = {
-    padding: "40px 20px",
+    padding: "50px 30px",
     minHeight: "100vh",
-    backgroundColor: "#fef6f0",
+    background: "linear-gradient(to bottom, #fff8f3, #ffece3)",
     fontFamily: "'Poppins', sans-serif",
   };
 
   const headingStyle = {
     textAlign: "center",
-    color: "#ff6b6b",
-    fontSize: "32px",
-    marginBottom: "30px",
-    fontWeight: "600",
+    color: "#e85d75",
+    fontSize: "36px",
+    marginBottom: "40px",
+    fontWeight: "700",
+    letterSpacing: "1px",
   };
 
   const gridStyle = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    gap: "20px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gap: "30px",
   };
 
   const cardStyle = {
-    backgroundColor: "#fff",
-    borderRadius: "15px",
-    padding: "20px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+    backgroundColor: "#ffffff",
+    borderRadius: "20px",
+    overflow: "hidden",
+    boxShadow: "0 15px 35px rgba(0,0,0,0.08)",
+    transition: "transform 0.3s ease, box-shadow 0.3s ease",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    minHeight: "200px",
+  };
+
+  const imageStyle = {
+    width: "100%",
+    height: "220px",
+    objectFit: "cover",
+  };
+
+  const contentStyle = {
+    padding: "20px",
   };
 
   const nameStyle = {
     fontSize: "20px",
     fontWeight: "600",
     color: "#333",
-    marginBottom: "10px",
+    marginBottom: "8px",
   };
 
   const priceStyle = {
-    fontSize: "16px",
-    fontWeight: "500",
-    color: "#ff6b6b",
+    fontSize: "18px",
+    fontWeight: "600",
+    color: "#e85d75",
     marginBottom: "10px",
   };
 
   const descStyle = {
     fontSize: "14px",
     color: "#666",
-    marginBottom: "15px",
+    marginBottom: "20px",
+    lineHeight: "1.5",
   };
 
   const buttonStyle = {
-    padding: "10px 15px",
-    borderRadius: "8px",
+    padding: "12px",
     border: "none",
-    backgroundColor: "#ff6b6b",
+    backgroundColor: "#e85d75",
     color: "#fff",
-    fontSize: "16px",
+    fontSize: "15px",
+    fontWeight: "500",
     cursor: "pointer",
-    transition: "0.3s",
+    transition: "background 0.3s ease",
+    borderBottomLeftRadius: "20px",
+    borderBottomRightRadius: "20px",
   };
-  // ---------------------------------------------
 
-  if (loading) return <p style={{ textAlign: "center" }}>Loading Cakes...</p>;
-  if (error) return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
+  // ------------------------------------------------
+
+  if (loading)
+    return <p style={{ textAlign: "center" }}>Loading Cakes...</p>;
+
+  if (error)
+    return (
+      <p style={{ color: "red", textAlign: "center" }}>
+        {error}
+      </p>
+    );
 
   return (
     <div style={containerStyle}>
       <h2 style={headingStyle}>Our Cakes</h2>
 
       {products.length === 0 ? (
-        <p style={{ textAlign: "center" }}>No cakes available</p>
+        <p style={{ textAlign: "center" }}>
+          No cakes available
+        </p>
       ) : (
         <div style={gridStyle}>
           {products.map((product) => (
-            <div key={product._id || Math.random()} style={cardStyle}>
-              <div>
-                <div style={nameStyle}>{product.name || "Unnamed Cake"}</div>
-                <div style={priceStyle}>₹{product.price ?? "N/A"}</div>
-                <div style={descStyle}>{product.description || "No description"}</div>
+            <div
+              key={product._id}
+              style={cardStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-8px)";
+                e.currentTarget.style.boxShadow =
+                  "0 20px 45px rgba(0,0,0,0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow =
+                  "0 15px 35px rgba(0,0,0,0.08)";
+              }}
+            >
+              {product.image && (
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  style={imageStyle}
+                />
+              )}
+
+              <div style={contentStyle}>
+                <div style={nameStyle}>
+                  {product.name}
+                </div>
+                <div style={priceStyle}>
+                  ₹{product.price}
+                </div>
+                <div style={descStyle}>
+                  {product.description}
+                </div>
               </div>
+
               <button
                 style={buttonStyle}
                 onClick={() => addToCart(product._id)}
-                disabled={!product._id}
               >
-                Add to Cart
+                Add to Cart 🛒
               </button>
             </div>
           ))}

@@ -1,9 +1,12 @@
 const {Router} = require("express");
+const cloudinary = require("../../../config/cloudinary");
 const ProductModel = require("../models/product-model");
 const createProductRules = require("../middlewares/create-product-rules");
 const updateProductRules = require("../middlewares/update-product-rules");
 const checkValidation = require("../../../shared/middlewares/check-validation");
 const authorize = require("../../../shared/middlewares/authorize");
+const upload = require("../middlewares/upload-product-image");
+
 
 const productRoutes = Router();
 
@@ -20,7 +23,7 @@ productRoutes.get("/",async(req,res)=>{
 //get product by id
 productRoutes.get("/:id", async(req,res)=>{
     try{
-        const product = await ProductModel.findByIdAndDelete(req.params.id);
+        const product = await ProductModel.findById (req.params.id);
         if(!product){
             return res.status(404).json({message : "Product not found"});
         }
@@ -31,18 +34,47 @@ productRoutes.get("/:id", async(req,res)=>{
 });
 
 // create product(admin only)
-productRoutes.post("/",authorize(["admin"]),createProductRules,checkValidation, async(req,res)=> {
-    try{
-        const product = await ProductModel.create({
-            ...req.body,
-            createdBy : req.account._id,
+
+productRoutes.post(
+  "/",
+  authorize(["admin"]),
+  upload.single("image"), 
+  createProductRules,
+  checkValidation,
+  async (req, res) => {
+    try {
+      let imageUrl = "";
+
+      // If image file exists, upload to Cloudinary
+      if (req.file) {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "cakeopia_products",
+        width: 500,
+        height: 500,
+        crop: "fill"
         });
 
-        res.status(201).json(product);
-    } catch(err) {
-        return res.status(500).json({message : "Error creating product"});
+        imageUrl = result.secure_url;
+      }
+
+      const product = await ProductModel.create({
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        category: req.body.category,
+        image: imageUrl, 
+        createdBy: req.account._id,
+      });
+
+      res.status(201).json(product);
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Error creating product" });
     }
-});
+  }
+);
+
 
 //update product (admin only )
 productRoutes.put("/:id" , authorize(["admin"]),updateProductRules,checkValidation, async (req,res)=>{

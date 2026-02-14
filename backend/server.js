@@ -11,7 +11,9 @@ const ordersRoute = require("./modules/orders/routes/order-routes");
 const app = express();
 
 
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
