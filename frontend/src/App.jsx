@@ -5,6 +5,8 @@ import Products from "./pages/Products";
 import ProtectedRoute from "./components/ProtectedRoutes";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
+import ProductDetails from "./pages/ProductDetails";
+
 
 
 function App() {
@@ -16,6 +18,8 @@ function App() {
    
       <Route path="/cart" element={<ProtectedRoute> <Cart /> </ProtectedRoute>} />
       <Route path="/orders" element={ <ProtectedRoute> <Orders /> </ProtectedRoute>} /> 
+      <Route path="/products/:id" element={<ProductDetails />} />
+
     </Routes>
   );
 }
