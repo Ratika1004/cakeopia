@@ -57,10 +57,15 @@ const Products = () => {
     }
 
     if (sort === "low") {
-      updated.sort((a, b) => a.price - b.price);
-    } else if (sort === "high") {
-      updated.sort((a, b) => b.price - a.price);
-    }
+  updated.sort(
+    (a, b) => getLowestPrice(a) - getLowestPrice(b)
+  );
+} else if (sort === "high") {
+  updated.sort(
+    (a, b) => getLowestPrice(b) - getLowestPrice(a)
+  );
+}
+
 
     setFilteredProducts(updated);
     setCurrentPage(1);
@@ -202,6 +207,12 @@ const Products = () => {
 
   if (error)
     return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
+  const getLowestPrice = (product) => {
+  if (!product.weights || product.weights.length === 0) return 0;
+
+  return Math.min(...product.weights.map((w) => w.price));
+};
+
 
   return (
     <div style={container}>
@@ -301,7 +312,8 @@ const Products = () => {
             <div style={content}>
               <h3>{product.name}</h3>
               <p style={{ color: "#e85d75", fontWeight: "600" }}>
-                ₹{product.price}
+               Starting from ₹{getLowestPrice(product)}
+
               </p>
               <p style={{ fontSize: "14px", color: "#666" }}>
                 {product.description}

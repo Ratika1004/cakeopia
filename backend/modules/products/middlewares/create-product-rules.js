@@ -1,36 +1,61 @@
-const {body} = require( "express-validator");
+const { body } = require("express-validator");
 
 const createProductRules = [
-    body("name")
+  body("name")
     .notEmpty()
     .withMessage("Product name is required")
-    .isString(),
+    .isString()
+    .withMessage("Name must be a string"),
 
-    body("price")
-    .notEmpty()
-    .withMessage("Price is required")
-    .isFloat({gt : 0})
-    .withMessage("Price must be greater than 0"),
-
-    body("category")
+  body("category")
     .notEmpty()
     .withMessage("Category is required")
-    .isIn(["cake","cupcake","pastry","custom"])
+    .isIn(["cake", "cupcake", "pastry", "custom"])
     .withMessage("Invalid category"),
 
-    body("description")
+  body("description")
     .optional()
-    .isString(),
+    .isString()
+    .withMessage("Description must be a string"),
 
-    body("image")
-    .optional()
-    .isString(),
+  // Validate weights (sent as JSON string via FormData)
+  body("weights")
+    .notEmpty()
+    .withMessage("At least one weight is required")
+    .custom((value) => {
+      let parsed;
 
-    body("isAvailable")
+      try {
+        parsed = JSON.parse(value);
+      } catch (err) {
+        throw new Error("Weights must be valid JSON");
+      }
+
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        throw new Error("Weights must be a non-empty array");
+      }
+
+      parsed.forEach((weight) => {
+        if (!weight.label || typeof weight.label !== "string") {
+          throw new Error("Each weight must have a valid label");
+        }
+
+        if (
+          weight.price === undefined ||
+          typeof weight.price !== "number" ||
+          weight.price <= 0
+        ) {
+          throw new Error("Each weight must have a price greater than 0");
+        }
+      });
+
+      return true;
+    }),
+
+  body("isAvailable")
     .optional()
-    .isBoolean(),
-    
-    
+    .isBoolean()
+    .withMessage("isAvailable must be true or false"),
 ];
 
 module.exports = createProductRules;
