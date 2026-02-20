@@ -21,7 +21,6 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
-  // ------------------- STYLES -------------------
   const pageStyle = {
     padding: "40px 20px",
     minHeight: "100vh",
@@ -39,7 +38,7 @@ const Orders = () => {
 
   const gridStyle = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
     gap: "20px",
   };
 
@@ -51,7 +50,7 @@ const Orders = () => {
   };
 
   const statusBadge = (status) => {
-    let bgColor = "#f0ad4e"; // pending
+    let bgColor = "#f0ad4e";
     if (status === "confirmed") bgColor = "#4caf50";
     if (status === "delivered") bgColor = "#1e88e5";
     if (status === "cancelled") bgColor = "#f56565";
@@ -74,21 +73,32 @@ const Orders = () => {
   };
 
   const itemStyle = {
-    fontSize: "16px",
-    margin: "5px 0",
+    fontSize: "15px",
+    margin: "6px 0",
+  };
+
+  const subtotalStyle = {
+    fontSize: "14px",
+    color: "#666",
   };
 
   const totalStyle = {
-    marginTop: "10px",
+    marginTop: "15px",
     fontWeight: "600",
     fontSize: "18px",
     color: "#ff6b6b",
   };
-  // ---------------------------------------------
 
-  if (loading) return <p style={{ textAlign: "center" }}>Loading orders...</p>;
+  if (loading)
+    return <p style={{ textAlign: "center" }}>Loading orders...</p>;
+
   if (orders.length === 0)
-    return <p style={{ textAlign: "center" }}>You have no orders yet.</p>;
+    return (
+      <div style={pageStyle}>
+        <h2 style={headingStyle}>My Orders</h2>
+        <p style={{ textAlign: "center" }}>You have no orders yet.</p>
+      </div>
+    );
 
   return (
     <div style={pageStyle}>
@@ -97,26 +107,51 @@ const Orders = () => {
       <div style={gridStyle}>
         {orders.map((order) => (
           <div key={order._id} style={cardStyle}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <span>Status:</span>
-              <span style={statusBadge(order.status)}>{order.status}</span>
+              <span style={statusBadge(order.status)}>
+                {order.status}
+              </span>
             </div>
 
             <p style={dateStyle}>
-              Ordered on: {new Date(order.createdAt).toLocaleDateString()}
+              Ordered on:{" "}
+              {new Date(order.createdAt).toLocaleDateString()}
             </p>
 
             <hr />
 
             <div>
               {order.items.map((item, index) => (
-                <p key={index} style={itemStyle}>
-                  {item.name} × {item.quantity}
-                </p>
+                <div key={index} style={itemStyle}>
+                  <div>
+                    <strong>{item.name}</strong>
+                  </div>
+
+                  <div>
+                    Weight: {item.weight}
+                  </div>
+
+                  <div>
+                    ₹{item.price} × {item.quantity}
+                  </div>
+
+                  <div style={subtotalStyle}>
+                    Subtotal: ₹{item.price * item.quantity}
+                  </div>
+                </div>
               ))}
             </div>
 
-            <p style={totalStyle}>Total: ₹{order.totalAmount}</p>
+            <p style={totalStyle}>
+              Grand Total: ₹{order.totalAmount}
+            </p>
           </div>
         ))}
       </div>

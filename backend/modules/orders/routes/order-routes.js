@@ -5,6 +5,11 @@ const authorize = require("../../../shared/middlewares/authorize");
 
 const ordersRoute = Router();
 
+/*
+========================================
+PLACE ORDER (FROM CART)
+========================================
+*/
 ordersRoute.post("/", authorize(["customer"]), async (req, res) => {
   try {
     const user = req.account;
@@ -16,10 +21,12 @@ ordersRoute.post("/", authorize(["customer"]), async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
+    // Create order items from cart
     const orderItems = cart.items.map((item) => ({
       productId: item.product._id,
       name: item.product.name,
-      price: item.product.price,
+      weight: item.weight,
+      price: item.price, // 
       quantity: item.quantity,
     }));
 
@@ -34,16 +41,22 @@ ordersRoute.post("/", authorize(["customer"]), async (req, res) => {
       totalAmount,
     });
 
-    cart.items = [];
-    await cart.save();
+    // Clear cart completely after order
+    await CartModel.findOneAndDelete({ user: user._id });
 
     res.status(201).json(order);
+
   } catch (error) {
     console.error("Place order error:", error);
     res.status(500).json({ message: "Failed to place order" });
   }
 });
 
+/*
+========================================
+GET MY ORDERS (CUSTOMER)
+========================================
+*/
 ordersRoute.get("/my", authorize(["customer"]), async (req, res) => {
   try {
     const userId = req.account._id;
@@ -51,28 +64,37 @@ ordersRoute.get("/my", authorize(["customer"]), async (req, res) => {
     const orders = await OrderModel.find({ userId })
       .sort({ createdAt: -1 });
 
- 
     return res.json(orders || []);
+
   } catch (error) {
     console.error("FETCH MY ORDERS ERROR:", error);
     res.status(500).json({ message: "Failed to fetch orders" });
   }
 });
 
-
+/*
+========================================
+GET ALL ORDERS (ADMIN)
+========================================
+*/
 ordersRoute.get("/", authorize(["admin"]), async (req, res) => {
   try {
     const orders = await OrderModel.find()
       .populate("userId", "name email")
-      .populate("items.product")
       .sort({ createdAt: -1 });
 
     res.json(orders);
+
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch all orders" });
   }
 });
 
+/*
+========================================
+UPDATE ORDER STATUS (ADMIN)
+========================================
+*/
 ordersRoute.put("/:id/status", authorize(["admin"]), async (req, res) => {
   try {
     const { status } = req.body;
@@ -99,6 +121,7 @@ ordersRoute.put("/:id/status", authorize(["admin"]), async (req, res) => {
     }
 
     res.json(order);
+
   } catch (error) {
     res.status(500).json({ message: "Failed to update order status" });
   }
