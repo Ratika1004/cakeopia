@@ -341,14 +341,14 @@ const Products = () => {
             </div>
 
             <button
-              style={addButton}
-              onClick={(e) => {
-                e.stopPropagation();
-                addToCart(product._id);
-              }}
-            >
-              Add to Cart 🛒
-            </button>
+  style={addButton}
+  onClick={(e) => {
+    e.stopPropagation();
+    navigate(`/products/${product._id}`);
+  }}
+>
+  View Details
+</button>
           </div>
         ))}
       </div>
